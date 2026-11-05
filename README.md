@@ -1,6 +1,27 @@
-# Hello
+# Monito
 
-A minimal React + Vite + Tailwind CSS website with a large, centered hello.
+A React + Vite + Tailwind CSS demo for Monito / Monita gift exchanges.
+
+Create a room, add one unique raffle name per participant, and share the room code. Each friend signs in with their own account and joins using that code. When the joined-account and raffle-name counts match, the organizer opens the draw. Every account can draw or reveal only its own recipient.
+
+Authentication uses Supabase email and password accounts without email verification. New users provide a display name and receive a session immediately. Existing sessions are restored automatically and logout ends the Supabase session. In the Supabase Dashboard, open Authentication → Sign In / Providers → Email and turn off **Confirm Email**.
+
+If the dashboard does not show that toggle, run `npm run auth:disable-email-confirmation`. The helper reads the project reference from `.env`, securely prompts for a scoped Supabase personal access token, and enables Auth auto-confirm through the official Management API. The token is kept only in memory and is never written to disk.
+
+Rooms, membership, raffle names, and assignments live in Supabase. The database assigns recipients when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's result. The UI contains no participant selector.
+
+## Supabase setup
+
+The repository now includes the official Supabase browser client and a secure initial schema. To connect a project:
+
+1. Create a Supabase project.
+2. Open its SQL Editor and run the migration files in filename order. Existing projects should run any newer migration files they have not applied yet.
+3. Copy `.env.example` to `.env.local` and add the Project URL and **publishable** key from the project's Connect dialog.
+4. Restart the Vite development server.
+
+Never put a Supabase secret key or legacy service-role key in a `VITE_` variable. Those keys bypass Row Level Security and must stay on a trusted server. The migration enables RLS, removes anonymous table access, restricts room data to members, and exposes recipient names only through an authenticated function that returns the caller's own assignment.
+
+`src/lib/monitoApi.js` contains the Auth and database operations used by the application.
 
 ```sh
 npm install
