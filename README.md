@@ -4,9 +4,7 @@ A React + Vite + Tailwind CSS demo for Monito / Monita gift exchanges.
 
 Create a room, add one unique raffle name per participant, and share the room code. Each friend signs in with their own account and joins using that code. When the joined-account and raffle-name counts match, the organizer opens the draw. Every account can draw or reveal only its own recipient.
 
-Authentication uses Supabase email and password accounts without email verification. New users provide a display name and receive a session immediately. Existing sessions are restored automatically and logout ends the Supabase session. In the Supabase Dashboard, open Authentication → Sign In / Providers → Email and turn off **Confirm Email**.
-
-If the dashboard does not show that toggle, run `npm run auth:disable-email-confirmation`. The helper reads the project reference from `.env`, securely prompts for a scoped Supabase personal access token, and enables Auth auto-confirm through the official Management API. The token is kept only in memory and is never written to disk.
+Authentication uses Supabase email and password accounts without sending verification emails. Sign-up calls the Vercel server function in `api/signup.js`, which creates an already-confirmed Supabase user, then the browser logs in with the supplied email and password. The email is used only as the account's login identifier. Existing sessions are restored automatically and logout ends the Supabase session.
 
 ## Deploying to Vercel
 
@@ -17,9 +15,13 @@ Add these variables in **Project Settings → Environment Variables** for Produc
 ```text
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SECRET_KEY=sb_secret_...
 ```
 
-Use only the publishable key in the frontend. Never add a Supabase secret key or service-role key to a `VITE_` variable. In Supabase, set **Authentication → URL Configuration → Site URL** to the final Vercel production URL. If authentication redirects are added later, allow the appropriate Vercel preview URL pattern as well.
+`VITE_SUPABASE_PUBLISHABLE_KEY` is included in the frontend bundle and protected by Row Level Security. `SUPABASE_SECRET_KEY` is available only to the Vercel signup function; never prefix it with `VITE_`, commit it, or return it to the browser. In Supabase, set **Authentication → URL Configuration → Site URL** to the final Vercel production URL. If authentication redirects are added later, allow the appropriate Vercel preview URL pattern as well.
+
+For local sign-up through `npm run dev`, add `SUPABASE_SECRET_KEY` to the ignored `.env` file. The Vite development middleware uses it only on the local Node process; Vite exposes only variables prefixed with `VITE_` to browser code. Restart the development server after changing `.env`.
 
 Rooms, membership, raffle names, and assignments live in Supabase. The database assigns recipients when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's result. The UI contains no participant selector.
 

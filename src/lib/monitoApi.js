@@ -6,20 +6,16 @@ function requireClient() {
 }
 
 export async function signUp(email, password, displayName) {
-  const { data, error } = await requireClient().auth.signUp({
-    email,
-    password,
-    options: { data: { display_name: displayName } },
+  const response = await fetch('/api/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, displayName }),
   })
-  if (error) throw error
-  if (data.user && data.session) {
-    const { error: profileError } = await requireClient().from('profiles').upsert({
-      id: data.user.id,
-      display_name: displayName,
-    })
-    if (profileError) throw profileError
+  const result = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(result.error || 'Could not create your account.')
   }
-  return data
+  return signIn(email, password)
 }
 
 export async function signIn(email, password) {

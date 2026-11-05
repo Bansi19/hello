@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview",
-    "auth:disable-email-confirmation": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/disable-email-confirmation.ps1"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

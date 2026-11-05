@@ -30,7 +30,7 @@ export default function AuthScreen({ onAuthenticated }) {
     try {
       if (mode === 'signup') {
         const data = await signUp(email, password, displayName)
-        if (!data.session) throw new Error('Supabase still requires email confirmation. Disable Confirm Email in the Email provider settings, then try again.')
+        if (!data.session) throw new Error('Your account was created but the session could not be started. Please log in.')
         onAuthenticated()
       } else {
         await signIn(email, password)
@@ -38,11 +38,7 @@ export default function AuthScreen({ onAuthenticated }) {
       }
     } catch (caught) {
       const message = caught.message || 'Something went wrong. Please try again.'
-      setError(
-        /email rate limit|over_email_send_rate_limit/i.test(message)
-          ? 'Supabase is still trying to send a confirmation email. Turn off Confirm Email in Authentication → Sign In / Providers → Email, save the setting, then wait for the current email cooldown to expire before trying again.'
-          : message
-      )
+      setError(message)
     } finally {
       setLoading(false)
     }
