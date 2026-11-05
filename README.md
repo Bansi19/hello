@@ -8,6 +8,19 @@ Authentication uses Supabase email and password accounts without email verificat
 
 If the dashboard does not show that toggle, run `npm run auth:disable-email-confirmation`. The helper reads the project reference from `.env`, securely prompts for a scoped Supabase personal access token, and enables Auth auto-confirm through the official Management API. The token is kept only in memory and is never written to disk.
 
+## Deploying to Vercel
+
+Import the Git repository in Vercel and set the project **Root Directory** to `hello`. Vercel will detect Vite; `vercel.json` also declares the production build, `dist` output, and SPA fallback.
+
+Add these variables in **Project Settings → Environment Variables** for Production and Preview, then redeploy:
+
+```text
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```
+
+Use only the publishable key in the frontend. Never add a Supabase secret key or service-role key to a `VITE_` variable. In Supabase, set **Authentication → URL Configuration → Site URL** to the final Vercel production URL. If authentication redirects are added later, allow the appropriate Vercel preview URL pattern as well.
+
 Rooms, membership, raffle names, and assignments live in Supabase. The database assigns recipients when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's result. The UI contains no participant selector.
 
 ## Supabase setup
