@@ -34,4 +34,16 @@
 .raffle-name-list button{background:transparent;color:#9a6f75;font-size:18px}
 .count-guidance{font-size:9px;color:#8298a7;margin-top:12px}
 .empty-dashboard{padding-top:90px}
+.wishlist-editor{margin-top:24px;padding-top:20px;border-top:1px solid #e5edf2}
+.wishlist-editor>.section-heading{margin-bottom:4px}
+.wishlist-items{margin-top:14px!important;padding-top:10px!important;border-top:1px solid #e5edf2}
+.wishlist-items li{align-items:flex-start;padding:8px 0}
+.wishlist-items li>span{flex:1;font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.wishlist-items button{flex-shrink:0;background:transparent;color:#9a6f75;font-size:18px;line-height:1}
+.recipient-wishlist{margin:20px auto;max-width:420px;padding:18px;text-align:left;border:1px solid #d7e8f3;border-radius:11px;background:#fff}
+.recipient-wishlist h4{margin:0 0 10px;color:#52768f;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.recipient-wishlist ul{margin:0;padding-left:18px;color:#405b6e;font-size:12px;line-height:1.7}
+.recipient-wishlist li+li{margin-top:6px}
+.recipient-wishlist p{margin:0!important;color:#8299a9!important;font-size:11px!important}
+.wishlist-star{display:inline-block;margin-right:4px;color:#d3a63f;font-size:10px;line-height:1}
 @media(max-width:640px){.signed-in-as{display:none}.share-code{align-items:flex-start;flex-direction:column}.account-draw-layout{display:block}.account-draw-layout>.friends{margin-top:16px}}

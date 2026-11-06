@@ -2,7 +2,7 @@
 
 A React + Vite + Tailwind CSS demo for Monito / Monita gift exchanges.
 
-Create a room, add one unique raffle name per participant, and share the room code. Each friend signs in with their own account and joins using that code. When the joined-account and raffle-name counts match, the organizer opens the draw. Every account can draw or reveal only its own recipient.
+Create a room and share its code. Each friend signs in with their own account and joins using that code; joined accounts are automatically the raffle names. Every member can add and remove items on their private room wishlist. When everyone is present, the organizer opens the draw. Every account can reveal only its own recipient and that recipient's wishlist.
 
 Authentication uses Supabase email and password accounts without sending verification emails. Sign-up calls the Vercel server function in `api/signup.js`, which creates an already-confirmed Supabase user, then the browser logs in with the supplied email and password. The email is used only as the account's login identifier. Existing sessions are restored automatically and logout ends the Supabase session.
 
@@ -23,7 +23,7 @@ SUPABASE_SECRET_KEY=sb_secret_...
 
 For local sign-up through `npm run dev`, add `SUPABASE_SECRET_KEY` to the ignored `.env` file. The Vite development middleware uses it only on the local Node process; Vite exposes only variables prefixed with `VITE_` to browser code. Restart the development server after changing `.env`.
 
-Rooms, membership, raffle names, and assignments live in Supabase. The database assigns recipients when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's result. The UI contains no participant selector.
+Rooms, membership, wishlists, and assignments live in Supabase. The database assigns joined members when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's recipient. Wishlist policies allow access only to the wishlist owner and their assigned gifter after that gifter reveals the draw. The UI contains no participant selector.
 
 ## Supabase setup
 

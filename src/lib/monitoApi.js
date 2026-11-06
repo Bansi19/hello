@@ -36,7 +36,7 @@ export async function listRooms() {
 }
 
 export async function listMembers(roomId) {
-  const { data, error } = await requireClient().from('room_members').select('id,user_id,display_name,joined_at,drawn_at').eq('room_id', roomId).order('joined_at')
+  const { data, error } = await requireClient().from('room_members').select('id,user_id,display_name,joined_at,drawn_at,has_wishlist').eq('room_id', roomId).order('joined_at')
   if (error) throw error
   return data
 }
@@ -62,20 +62,20 @@ export async function joinRoom(joinCode, displayName) {
   return data
 }
 
-export async function listRaffleNames(roomId) {
-  const { data, error } = await requireClient().from('raffle_names').select('id,name').eq('room_id', roomId).order('created_at')
+export async function listWishlist(roomId, memberId) {
+  const { data, error } = await requireClient().from('wishlist_items').select('id,wish,created_at').eq('room_id', roomId).eq('member_id', memberId).order('created_at')
   if (error) throw error
   return data
 }
 
-export async function addRaffleName(roomId, name) {
-  const { data, error } = await requireClient().rpc('add_raffle_name', { p_room_id: roomId, p_name: name })
+export async function addWishlistItem(roomId, memberId, wish) {
+  const { data, error } = await requireClient().from('wishlist_items').insert({ room_id: roomId, member_id: memberId, wish }).select('id,wish,created_at').single()
   if (error) throw error
-  return data?.[0]
+  return data
 }
 
-export async function removeRaffleName(id) {
-  const { error } = await requireClient().rpc('remove_raffle_name', { p_name_id: id })
+export async function removeWishlistItem(id) {
+  const { error } = await requireClient().from('wishlist_items').delete().eq('id', id)
   if (error) throw error
 }
 
@@ -87,5 +87,6 @@ export async function openDraw(roomId) {
 export async function revealMyRecipient(roomId) {
   const { data, error } = await requireClient().rpc('reveal_my_recipient', { p_room_id: roomId })
   if (error) throw error
-  return data?.[0]?.display_name ?? null
+  const result = data?.[0]
+  return result ? { displayName: result.display_name, wishlist: result.wishlist || [] } : null
 }
