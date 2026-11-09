@@ -5,12 +5,14 @@ import {
   createRoom,
   getProfile,
   joinRoom,
+  listAdminUsers,
   listMembers,
   listRooms,
   listWishlist,
   openDraw,
   removeWishlistItem,
   revealMyRecipient,
+  resetUserPassword,
   signOut,
 } from './lib/monitoApi'
 
@@ -37,6 +39,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [adminUsers, setAdminUsers] = useState(null)
+  const [showAdmin, setShowAdmin] = useState(false)
+  const [adminBusy, setAdminBusy] = useState('')
+  const [resetCredentials, setResetCredentials] = useState(null)
 
   const room = rooms.find(item => item.id === selectedId) || rooms[0]
   const isOwner = Boolean(room && user && room.owner_id === user.id)
@@ -55,6 +61,12 @@ export default function Dashboard() {
         setUser(data.user)
         setProfile(await getProfile(data.user.id))
         await refreshRooms()
+        try {
+          const adminData = await listAdminUsers()
+          setAdminUsers(adminData.users)
+        } catch {
+          setAdminUsers(null)
+        }
       } catch (caught) {
         setError(caught.message)
       } finally {
@@ -135,12 +147,28 @@ export default function Dashboard() {
     await navigator.clipboard.writeText(room.join_code)
   }
 
+  async function resetAccount(account) {
+    if (!window.confirm(`Reset the password for ${account.email}? Their current password will stop working.`)) return
+    setAdminBusy(account.id)
+    setResetCredentials(null)
+    setError('')
+    try {
+      const result = await resetUserPassword(account.id)
+      setResetCredentials(result)
+      setAdminUsers(current => current.map(item => item.id === account.id ? { ...item, mustChangePassword: true } : item))
+    } catch (caught) {
+      setError(caught.message || 'Could not reset this account.')
+    } finally {
+      setAdminBusy('')
+    }
+  }
+
   if (loading) return <div className="auth-loading">Loading your exchanges…</div>
 
   return <div>
     <header className="topbar">
       <Brand />
-      <div><span className="signed-in-as">{profile?.display_name}</span><button className="text-button" onClick={() => signOut()}>Log out ↗</button></div>
+      <div><span className="signed-in-as">{profile?.display_name}</span>{adminUsers && <button className="text-button admin-link" onClick={() => { setShowAdmin(true); setResetCredentials(null) }}>Superadmin</button>}<button className="text-button" onClick={() => signOut()}>Log out ↗</button></div>
     </header>
     <div className="workspace">
       <aside className="sidebar">
@@ -223,5 +251,26 @@ export default function Dashboard() {
         </>}
       </main>
     </div>
+    {showAdmin && <div className="modal-overlay" onMouseDown={event => { if (event.target === event.currentTarget) setShowAdmin(false) }}>
+      <dialog open className="admin-dialog" aria-labelledby="admin-title">
+        <button className="close" onClick={() => setShowAdmin(false)} aria-label="Close">×</button>
+        <span className="tag">SUPERADMIN</span>
+        <h2 id="admin-title">User accounts.</h2>
+        <p className="muted">Reset a forgotten password, then privately send the temporary password to that user.</p>
+        {resetCredentials && <section className="temporary-password" role="status">
+          <p className="eyebrow">TEMPORARY LOGIN FOR {resetCredentials.email}</p>
+          <strong>{resetCredentials.temporaryPassword}</strong>
+          <button className="secondary" onClick={() => navigator.clipboard.writeText(resetCredentials.temporaryPassword)}>Copy password</button>
+          <p>Shown only now. The user will be required to create a new password after logging in.</p>
+        </section>}
+        <div className="admin-user-list">
+          {adminUsers.map(account => <article key={account.id} className="admin-user-row">
+            <span className="avatar">{(account.displayName || account.email || '?').charAt(0).toUpperCase()}</span>
+            <div><strong>{account.displayName || 'Unnamed user'}</strong><span>{account.email}</span>{account.mustChangePassword && <small>Waiting for a new password</small>}</div>
+            <button className="secondary" disabled={Boolean(adminBusy) || account.protectedAccount} onClick={() => resetAccount(account)}>{account.protectedAccount ? 'Admin' : adminBusy === account.id ? 'Resetting…' : 'Reset'}</button>
+          </article>)}
+        </div>
+      </dialog>
+    </div>}
   </div>
 }

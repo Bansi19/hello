@@ -24,6 +24,55 @@ export async function signIn(email, password) {
   return data
 }
 
+async function authenticatedRequest(path, options = {}) {
+  const { data } = await requireClient().auth.getSession()
+  if (!data.session) throw new Error('Authentication required.')
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${data.session.access_token}`,
+      ...options.headers,
+    },
+  })
+  const result = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const error = new Error(result.error || 'The request could not be completed.')
+    error.status = response.status
+    throw error
+  }
+  return result
+}
+
+export function listAdminUsers() {
+  return authenticatedRequest('/api/admin-users')
+}
+
+export function resetUserPassword(userId) {
+  return authenticatedRequest('/api/admin-reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ userId }),
+  })
+}
+
+export async function completeForcedPasswordChange(password) {
+  await authenticatedRequest('/api/complete-password-reset', {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  })
+  // Updating the password invalidates the temporary refresh token. Clear the
+  // browser session locally instead of trying to refresh that revoked token.
+  await requireClient().auth.signOut({ scope: 'local' })
+}
+
+export async function clearLocalSession() {
+  try {
+    await requireClient().auth.signOut({ scope: 'local' })
+  } finally {
+    window.location.replace('/')
+  }
+}
+
 export async function signOut() {
   const { error } = await requireClient().auth.signOut()
   if (error) throw error

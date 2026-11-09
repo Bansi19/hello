@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import AuthScreen from './AuthScreen'
 import Dashboard from './Dashboard'
+import ForcedPasswordScreen from './ForcedPasswordScreen'
 import { supabase } from './lib/supabase'
 import './style.css'
 
@@ -33,6 +34,7 @@ function App() {
 
   if (!ready) return <div className="auth-loading">Loading MONITO…</div>
   if (!session) return <AuthScreen onAuthenticated={() => {}} />
+  if (session.user.app_metadata?.force_password_change) return <ForcedPasswordScreen />
   return <Dashboard />
 }
 

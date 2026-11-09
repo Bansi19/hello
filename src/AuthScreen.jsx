@@ -37,8 +37,7 @@ export default function AuthScreen({ onAuthenticated }) {
         onAuthenticated()
       }
     } catch (caught) {
-      const message = caught.message || 'Something went wrong. Please try again.'
-      setError(message)
+      setError(caught.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }

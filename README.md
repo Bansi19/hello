@@ -6,6 +6,8 @@ Create a room and share its code. Each friend signs in with their own account an
 
 Authentication uses Supabase email and password accounts without sending verification emails. Sign-up calls the Vercel server function in `api/signup.js`, which creates an already-confirmed Supabase user, then the browser logs in with the supplied email and password. The email is used only as the account's login identifier. Existing sessions are restored automatically and logout ends the Supabase session.
 
+Password recovery is supervised by a superadmin and sends no email. The superadmin resets an account from the protected user-management panel and receives a one-time temporary password to share privately with the user. After logging in with that password and the same email address, the user must choose a new password before MONITO allows access to any room.
+
 ## Deploying to Vercel
 
 Import the Git repository in Vercel and set the project **Root Directory** to `hello`. Vercel will detect Vite; `vercel.json` also declares the production build, `dist` output, and SPA fallback.
@@ -17,11 +19,12 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_...
+SUPERADMIN_EMAILS=owner@example.com
 ```
 
-`VITE_SUPABASE_PUBLISHABLE_KEY` is included in the frontend bundle and protected by Row Level Security. `SUPABASE_SECRET_KEY` is available only to the Vercel signup function; never prefix it with `VITE_`, commit it, or return it to the browser. In Supabase, set **Authentication → URL Configuration → Site URL** to the final Vercel production URL. If authentication redirects are added later, allow the appropriate Vercel preview URL pattern as well.
+`VITE_SUPABASE_PUBLISHABLE_KEY` is included in the frontend bundle and protected by Row Level Security. `SUPABASE_SECRET_KEY` is available only to Vercel server functions; never prefix it with `VITE_`, commit it, or return it to the browser. `SUPERADMIN_EMAILS` is a comma-separated allowlist and must also remain server-only. Sign up or create the superadmin account using the same email, set this variable, and redeploy. That account will then see **Superadmin** in the dashboard header. In Supabase, set **Authentication → URL Configuration → Site URL** to the final Vercel production URL.
 
-For local sign-up through `npm run dev`, add `SUPABASE_SECRET_KEY` to the ignored `.env` file. The Vite development middleware uses it only on the local Node process; Vite exposes only variables prefixed with `VITE_` to browser code. Restart the development server after changing `.env`.
+For local sign-up and superadmin controls through `npm run dev`, add `SUPABASE_SECRET_KEY` and `SUPERADMIN_EMAILS` to the ignored `.env` file. The Vite development middleware uses them only on the local Node process; Vite exposes only variables prefixed with `VITE_` to browser code. Restart the development server after changing `.env`.
 
 Rooms, membership, wishlists, and assignments live in Supabase. The database assigns joined members when the organizer opens the draw, prevents self-matches and duplicate recipients, and returns only the authenticated caller's recipient. Wishlist policies allow access only to the wishlist owner and their assigned gifter after that gifter reveals the draw. The UI contains no participant selector.
 
