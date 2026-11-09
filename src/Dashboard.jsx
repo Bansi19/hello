@@ -236,7 +236,7 @@ export default function Dashboard() {
             <aside className="panel friends">
               <div className="section-heading"><h2>The circle</h2><span className="count">{members.length}</span></div>
               <p className="muted small">Every joined person is one raffle name.</p>
-              <ul>{members.map((member, index) => <li key={member.id}><span className={`avatar color-${index % 4}`}>{member.display_name.charAt(0).toUpperCase()}</span><span className="friend-name">{member.display_name}</span><span className={`friend-status ${member.drawn_at ? 'picked' : ''}`}>{member.has_wishlist && <span className="wishlist-star" aria-label="Wishlist added" title="Wishlist added">★</span>}{member.drawn_at ? 'Drawn ✓' : 'Joined'}</span></li>)}</ul>
+              <ul>{members.map((member, index) => <li key={member.id}><span className={`avatar color-${index % 4}`}>{member.display_name.charAt(0).toUpperCase()}</span><span className="friend-name">{member.display_name}{room.status === 'open' && member.drawn_at && <span className="drawn-icon" aria-label="Draw completed" title="Draw completed">✓</span>}</span><span className="friend-status">{member.has_wishlist && <span className="wishlist-star" aria-label="Wishlist added" title="Wishlist added">★</span>}{room.status === 'open' ? (member.drawn_at ? '' : 'Waiting') : 'Joined'}</span></li>)}</ul>
               <section className="wishlist-editor">
                 <div className="section-heading"><h2>My wishlist</h2><span className="count">{wishlist.length}</span></div>
                 <p className="muted small">Only you and the person who draws you can see this.</p>

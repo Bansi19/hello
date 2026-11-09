@@ -63,4 +63,5 @@
 .recipient-wishlist li+li{margin-top:6px}
 .recipient-wishlist p{margin:0!important;color:#8299a9!important;font-size:11px!important}
 .wishlist-star{display:inline-block;margin-right:4px;color:#d3a63f;font-size:10px;line-height:1}
+.drawn-icon{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:7px;border-radius:50%;background:#e4f0e2;color:#66835f;font-size:10px;font-weight:700;vertical-align:middle}
 @media(max-width:640px){.signed-in-as{display:none}.share-code{align-items:flex-start;flex-direction:column}.account-draw-layout{display:block}.account-draw-layout>.friends{margin-top:16px}}
